@@ -16,11 +16,12 @@ def largest_contour(contour_list):
 
 
 # Read image
-# image = cv2.imread('4point.jpg')
-image = cv2.imread('receipt.jpg')
+image = cv2.imread('4point.jpg')
+# image = cv2.imread('receipt.jpg')
 # image = cv2.imread('note2.jpg')
 # image = cv2.imread('angle.jpg')
 # image = cv2.imread('keycard.jpg')
+
 
 # Convert to grayscale
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -34,8 +35,8 @@ edged = cv2.Canny(gray, 75, 200)
 # Show the Original Image
 cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
 cv2.imshow("Image", image)
-# cv2.namedWindow('Edged', cv2.WINDOW_NORMAL)
-# cv2.imshow("Edged", edged)
+cv2.namedWindow('Edged', cv2.WINDOW_NORMAL)
+cv2.imshow("Edged", edged)
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
 
