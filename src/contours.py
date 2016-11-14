@@ -1,5 +1,6 @@
 from transform import *
 
+
 def largest_contour(contour_list):
     """Returns the contour with the largest area within a list of contours"""
 
@@ -13,11 +14,11 @@ def largest_contour(contour_list):
     return contour_list[max_index]
 
 # Read image
-image = cv2.imread('4point.jpg')
-# image = cv2.imread('receipt.jpg')
-# image = cv2.imread('note2.jpg')
-# image = cv2.imread('angle.jpg')
-# image = cv2.imread('keycard.jpg')
+image = cv2.imread('../images/4point.jpg')
+# image = cv2.imread('../images/receipt.jpg')
+# image = cv2.imread('../images/note2.jpg')
+# image = cv2.imread('../images/angle.jpg')
+# image = cv2.imread('../images/keycard.jpg')
 orig = image.copy()
 
 # convert the image to grayscale, blur it, and find edges

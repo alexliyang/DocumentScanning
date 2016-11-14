@@ -66,7 +66,7 @@ def main():
 
     # For image
 
-    # img = cv2.imread('../images/shadowed_page.png')
+    # img = cv2.imread('../images/keycard.jpg')
     # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # thresh, new_image = adaptive_threshold(gray, type='adaptive')
     # mean = adaptive_threshold(gray, type='mean')

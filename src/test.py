@@ -18,10 +18,12 @@ def startVid():  # Program starts a video stream
     cap.release()
     cv2.destroyAllWindows()
 
+
 def showim(img):
     cv2.imshow('window', img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
 
 def takepic(x=0):
     cap = cv2.VideoCapture(0)

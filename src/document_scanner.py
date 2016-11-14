@@ -16,11 +16,11 @@ def largest_contour(contour_list):
 
 
 # Read image
-image = cv2.imread('4point.jpg')
-# image = cv2.imread('receipt.jpg')
-# image = cv2.imread('note2.jpg')
-# image = cv2.imread('angle.jpg')
-# image = cv2.imread('keycard.jpg')
+# image = cv2.imread('../images/4point.jpg')
+# image = cv2.imread('../images/receipt.jpg')
+# image = cv2.imread('../images/note2.jpg')
+# image = cv2.imread('../images/angle.jpg')
+image = cv2.imread('../images/keycard.jpg')
 
 
 # Convert to grayscale
