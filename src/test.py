@@ -1,8 +1,7 @@
-import numpy as np
 import cv2
 
 
-def startVid():  # Program starts a video stream
+def start_vid():  # Program starts a video stream
 
     cap = cv2.VideoCapture(0)
 
@@ -19,22 +18,22 @@ def startVid():  # Program starts a video stream
     cv2.destroyAllWindows()
 
 
-def showim(img):
+def show_im(img):
     cv2.imshow('window', img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 
-def takepic(x=0):
+def take_pic(x=0):
     cap = cv2.VideoCapture(0)
 
     ret, frame = cap.read()
     cap.release()
     if x == 1:
-        showim(frame)
+        show_im(frame)
 
     return frame
 
-startVid()
+start_vid()
 
 
