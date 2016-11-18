@@ -18,7 +18,7 @@ def largest_contour(contour_list):
 def main():
 
     # Read image
-    image = cv2.imread('../images/4point.jpg')
+    image = cv2.imread('../images/notes.jpg')
     # image = cv2.imread('../images/receipt.jpg')
     # image = cv2.imread('../images/note2.jpg')
     # image = cv2.imread('../images/angle.jpg')
@@ -34,7 +34,7 @@ def main():
     edged = cv2.Canny(gray, 75, 200)
 
     ret, thresh = cv2.threshold(gray, 127, 255, 0)
-    cv2.namedWindow('thresh', cv2.WINDOW_NORMAL)
+    # cv2.namedWindow('thresh', cv2.WINDOW_NORMAL)
     cv2.imshow('thresh',thresh)
 
     (_, contours, a) = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
