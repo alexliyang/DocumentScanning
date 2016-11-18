@@ -1,5 +1,9 @@
 import cv2
 
+def show_image(name,img):
+    cv2.namedWindow(name,cv2.WINDOW_NORMAL)
+    cv2.imshow(name,img)
+
 
 def start_vid():  # Program starts a video stream
 

@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 
 
+
 def largest_contour(contour_list):
     """Returns the contour with the largest area within a list of contours"""
 
@@ -18,8 +19,8 @@ def largest_contour(contour_list):
 def main():
 
     # Read image
-    image = cv2.imread('../images/notes.jpg')
-    # image = cv2.imread('../images/receipt.jpg')
+    # image = cv2.imread('../images/notes.jpg')
+    image = cv2.imread('../images/receipt.jpg')
     # image = cv2.imread('../images/note2.jpg')
     # image = cv2.imread('../images/angle.jpg')
     # image = cv2.imread('../images/keycard.jpg')
@@ -28,13 +29,11 @@ def main():
     # convert the image to grayscale, blur it, and find edges
     # in the image
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    gray = cv2.GaussianBlur(gray, (5, 5), 0)
-    gray = cv2.GaussianBlur(gray, (5, 5), 0)
-    gray = cv2.GaussianBlur(gray, (5, 5), 0)
+    gray = cv2.GaussianBlur(gray, (9, 9), 0)
     edged = cv2.Canny(gray, 75, 200)
 
     ret, thresh = cv2.threshold(gray, 127, 255, 0)
-    # cv2.namedWindow('thresh', cv2.WINDOW_NORMAL)
+    cv2.namedWindow('thresh', cv2.WINDOW_NORMAL)
     cv2.imshow('thresh',thresh)
 
     (_, contours, a) = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
