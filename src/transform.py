@@ -2,73 +2,54 @@ import cv2
 import numpy as np
 
 
-refPt = set([])
-
-
 def order_points(pts):
-    """Take """
+    """Take the four corner points and return a rectangle that fits the point values in order
+        from top left, top right, bottom right, bottom left"""
+
     rect = np.zeros((4, 2), dtype="float32")
 
-    s = pts.sum(axis=1)
-    rect[0] = pts[np.argmin(s)]
-    rect[2] = pts[np.argmax(s)]
+    point_sum = pts.sum(axis=1)
 
-    # now, compute the difference between the points, the
-    # top-right point will have the smallest difference,
-    # whereas the bottom-left will have the largest difference
-    diff = np.diff(pts, axis=1)
-    rect[1] = pts[np.argmin(diff)]
-    rect[3] = pts[np.argmax(diff)]
+    rect[0] = pts[np.argmin(point_sum)]     # Point with smallest sum is the top left point
+    rect[2] = pts[np.argmax(point_sum)]     # Point with largest sum is the bottom right point
 
-    # return the ordered coordinates
+    point_diff = np.diff(pts, axis=1)
+
+    rect[1] = pts[np.argmin(point_diff)]    # Top write point will have smallest difference
+    rect[3] = pts[np.argmax(point_diff)]    # Bottom left point will have largest difference
+
     return rect
 
 
 def four_point_transform(image, pts):
-    # obtain a consistent order of the points and unpack them
-    # individually
+    """Compute the rectangle dimensions of a birds eye view of the document and do a perspective transform
+        on the image to cut out everything outside the document boundaries."""
+
     rect = order_points(pts)
     (tl, tr, br, bl) = rect
 
-    # compute the width of the new image, which will be the
-    # maximum distance between bottom-right and bottom-left
-    # x-coordiates or the top-right and top-left x-coordinates
-    widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
-    widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
-    maxWidth = max(int(widthA), int(widthB))
+    # Compute width of new image, where we compare the distance between tl/tr and br/bl and choose the max
+    width_a = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
+    width_b = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
+    max_width = max(int(width_a), int(width_b))
 
-    # compute the height of the new image, which will be the
-    # maximum distance between the top-right and bottom-right
-    # y-coordinates or the top-left and bottom-left y-coordinates
-    heightA = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
-    heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
-    maxHeight = max(int(heightA), int(heightB))
+    # Compute height of new image, where we compare the distance between tl/bl and tr/br and choose the max
+    height_a = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
+    height_b = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
+    max_height = max(int(height_a), int(height_b))
 
-    # now that we have the dimensions of the new image, construct
-    # the set of destination points to obtain a "birds eye view",
-    # (i.e. top-down view) of the image, again specifying points
-    # in the top-left, top-right, bottom-right, and bottom-left
-    # order
+    # Create the dimension of a new image with the points specified top left, top right, bottom right, bottom left
     dst = np.array([
         [0, 0],
-        [maxWidth - 1, 0],
-        [maxWidth - 1, maxHeight - 1],
-        [0, maxHeight - 1]], dtype = "float32")
+        [max_width - 1, 0],
+        [max_width - 1, max_height - 1],
+        [0, max_height - 1]], dtype = "float32")
 
-    # compute the perspective transform matrix and then apply it
-    M = cv2.getPerspectiveTransform(rect, dst)
-    warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
+    # Compute the perspective transform matrix and then apply it
+    perspective_matrix = cv2.getPerspectiveTransform(rect, dst)
+    warped = cv2.warpPerspective(image, perspective_matrix, (max_width, max_height))
 
-    # return the warped image
     return warped
 
-
-# image = cv2.imread("4point.jpg")
-# cv2.namedWindow("image",cv2.WINDOW_NORMAL)
-# cv2.setMouseCallback("image", click_point)
-# cv2.imshow("image", image)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
-# print(refPt)
 
 
