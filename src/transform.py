@@ -6,7 +6,7 @@ refPt = set([])
 
 
 def order_points(pts):
-
+    """Take """
     rect = np.zeros((4, 2), dtype="float32")
 
     s = pts.sum(axis=1)
@@ -22,20 +22,6 @@ def order_points(pts):
 
     # return the ordered coordinates
     return rect
-
-
-def click_point(event, x, y, flags, param):
-    # grab references to the global variables
-    global refPt
-
-    # if the left mouse button was clicked, record the starting (x, y) coordinates
-    if event == cv2.EVENT_LBUTTONDOWN:
-        refPt.add((x, y))
-        print("Added point {}, {} to the data set.".format(x, y))
-        # draw a circle around the region of interest
-        circle_size = int(np.mean(image.shape[0:2])/250)
-        cv2.circle(image, (x, y), circle_size, (0, 0, 255), -1)
-        cv2.imshow("image", image)
 
 
 def four_point_transform(image, pts):
