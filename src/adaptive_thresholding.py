@@ -59,7 +59,7 @@ def _least_squares_thresholding(img):
     final_img = cv2.absdiff(img + 235, fitted_img.astype(np.uint8))
     final_img = 255 - final_img
     ret, final_img = cv2.threshold(final_img, 215, 255, cv2.THRESH_BINARY)
-    return fitted_img, final_img
+    return final_img
 
 
 def main():
@@ -81,10 +81,10 @@ def main():
     cap.set(3, 640)
     cap.set(4, 480)
     cap.set(15, 0.1)
-    while (True):
+    while True:
         ret, frame = cap.read()
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        thresh, new_image = adaptive_threshold(gray, type='adaptive')
+        new_image = adaptive_threshold(gray, type='adaptive')
         cv2.imshow('New', new_image)
     cv2.waitKey(0)
 
