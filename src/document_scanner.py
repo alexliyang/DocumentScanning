@@ -2,7 +2,11 @@ from adaptive_thresholding import adaptive_threshold
 import cv2
 import numpy as np
 import transform
+import math
 
+
+# initialize the list of reference points. This list will be populated by the points picked by the user
+# refPt = set([])
 
 def create_edge_image(image):
     """Take in an image and return a gray scale and edge image. Return an image with the most prominent edges"""
@@ -42,11 +46,52 @@ def largest_contour(contour_list):
     max_index = x.argmax()
     return contour_list[max_index]
 
+def perpendicular_distance(point1, point2, point3):
+    run = point2[0] - point1[0]
+    rise = point2[1] - point1[1]
+
+    dist = run**2 + rise**2
+    u = ((point3[1] - point1[0]) * run + (point3[1] - point1[1]) * rise)/ float(dist)
+
+    if u > 1:
+        u = 1
+    elif u < 0:
+        u = 0
+
+    x = point1[0] + u * run
+    y = point1[1] + u * rise
+    dx = x - point3[0]
+    dy = y - point3[1]
+
+    return math.sqrt(dx**2 + dy**2)
+
+
+def douglas_peucker(contour, epsilon):
+    dmax = 0
+    index = 0
+    end = len(contour)
+    for i in range(2, end -1):
+        d = perpendicular_distance(contour[0][0], contour[end -1][0], contour[i][0])
+        if d > dmax:
+            index = i
+            dmax = d
+    if dmax > epsilon:
+        recursive_res1 = douglas_peucker(contour[0:index+1], epsilon)
+        recursive_res2 = douglas_peucker(contour[index+1: end], epsilon)
+
+        result_list = np.concatenate((recursive_res1[:len(recursive_res1)], recursive_res2), axis=0)
+    else:
+        result_list = np.array([contour[0], contour[end-1]])
+
+    return result_list
+
+
 
 def find_corners_from_contours(page_contour):
     """Analyze the largest contour of the image and return the four corners of the document in the image"""
 
-    epsilon = 0.1 * cv2.arcLength(page_contour, True)
+    epsilon = 0.15 * cv2.arcLength(page_contour, True)
+    # page_approx = douglas_peucker(page_contour, epsilon)
     page_approx = cv2.approxPolyDP(page_contour, epsilon, True)
     return page_approx.sum(axis=1), page_approx
 
@@ -95,7 +140,31 @@ def main():
     # image = cv2.imread('../images/note2.jpg')
     # image = cv2.imread('../images/angle.jpg')
     # image = cv2.imread('../images/keycard.jpg')
-    image = cv2.imread('../images/notes.jpg')
+    image = cv2.imread('../images/resume_low_res.jpg')
+
+    # image_cp = image.copy()
+    #
+    # def click_point(event, x, y, flags, param):
+    #     # grab references to the global variables
+    #     global refPt
+    #
+    #     # if the left mouse button was clicked, record the starting (x, y) coordinates
+    #     if event == cv2.EVENT_LBUTTONDOWN:
+    #         refPt.add((x, y))
+    #         print("Added point {}, {} to the data set.".format(x, y))
+    #         # draw a circle around the region of interest
+    #         cv2.circle(image_cp, (x, y), 3, (0, 0, 255), -1)
+    #         cv2.namedWindow('image', cv2.WINDOW_NORMAL)
+    #         cv2.imshow("image", image_cp)
+    #
+    # # cv2.namedWindow("image")
+    # cv2.namedWindow('image', cv2.WINDOW_NORMAL)
+    # cv2.setMouseCallback("image", click_point)
+    #
+    # cv2.imshow("image", image_cp)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
     scanned_doc = scan_page(image)
     cv2.imwrite('../images/scanned_notes.jpg', scanned_doc)
 
