@@ -4,6 +4,13 @@ def show_image(name,img):
     cv2.namedWindow(name,cv2.WINDOW_NORMAL)
     cv2.imshow(name,img)
 
+def wait_for_q_press():
+
+    while True:
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    cv2.destroyAllWindows()
 
 def start_vid():  # Program starts a video stream
 
@@ -38,6 +45,5 @@ def take_pic(x=0):
 
     return frame
 
-start_vid()
 
 

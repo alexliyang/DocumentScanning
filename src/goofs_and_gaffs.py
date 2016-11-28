@@ -39,7 +39,7 @@ def main():
     (_, contours, a) = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     contours = largest_contour(contours)
 
-    # Anton PLS MAKE A FUNCTION THAT FITS 4 LINES to points in variable 'contours', and then returns the corners
+    
 
     # show the original image and the edge detected image
     cv2.namedWindow("Image", cv2.WINDOW_NORMAL)
