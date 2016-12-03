@@ -52,8 +52,34 @@ def find_perpendicular(rho, theta):
         slope = y/x
     else:
         slope = 0
-    slope_perp = -1/slope
-    b_perp = -slope_perp * x + y
-    return slope_perp, b_perp
+    a = -1/slope
+    b = 1
+    c = -a * x + y
+    return -a, b, -c
 
 
+def intersection(L1, L2):
+    D = L1[0] * L2[1] - L1[1] * L2[0]
+    Dx = L1[2] * L2[1] - L1[1] * L2[2]
+    Dy = L1[0] * L2[2] - L1[2] * L2[0]
+    if D != 0:
+        x = Dx / D
+        y = Dy / D
+        return x, y
+    else:
+        return False, False
+
+
+def find_intersections(points):
+    lines = []
+    for pt in points:
+        a, b, c = find_perpendicular(pt[0], pt[1])
+        lines.append([a, b, c])
+
+    intercepts = []
+    for i in range(0, len(points)):
+        for j in range(i + 1, len(points)):
+            x, y = intersection(lines[i], lines[j])
+            if type(x) == float and x >= 0 and y >= 0:
+                intercepts.append([x, y])
+    return intercepts
