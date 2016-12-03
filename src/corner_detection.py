@@ -32,10 +32,10 @@ def hough_transform(image):
     # edge[hull[0],hull[1]] = 255
 
     height, width = edge.shape
-    max_distance = np.sqrt(height ** 2 + width ** 2)
+    max_distance = int(np.sqrt(height ** 2 + width ** 2))
     rhos = np.arange(-max_distance, max_distance)
     # thetas = np.deg2rad(np.linspace(-90, 90,500))
-    thetas = np.deg2rad(np.arange(-90, 90))
+    thetas = np.deg2rad(np.arange(-90+25, 90+25))
 
     cos_t = np.cos(thetas)
     sin_t = np.sin(thetas)
@@ -50,14 +50,14 @@ def hough_transform(image):
 
         for t_coord in range(num_thetas):
             # Calculate rho. diag_len is added for a positive index
-            rho = round(x * cos_t[t_coord] + y * sin_t[t_coord]) + max_distance
+            rho = int(x * cos_t[t_coord] + y * sin_t[t_coord]) + max_distance
             accumulator[rho, t_coord] += 1.0
 
     # accumulator = np.log(accumulator + 1)
     # accumulator *= 255.0 / accumulator.max()
     # accumulator = scipy.misc.imresize(accumulator, (500, 500))
 
-    return accumulator, thetas, rhos, width
+    return accumulator, thetas, rhos
 
 # def detect_peaks(image):
 #     """
@@ -90,6 +90,47 @@ def hough_transform(image):
 #
 #     return detected_peaks
 
+def erase_max(h, c):
+    for i in range(-5,5)+c[1]:
+        for j in range(-40,40)+c[0]:
+            h[j][i] = 0
+
+    return h
+
+def draw_four_lines(img):
+    from numpy import sin, cos
+
+    height, width, _ = img.shape
+    h, thetas, rhos = hough_transform(img)
+
+    for i in range(4):
+        c = np.squeeze(np.where(h == h.max()))
+        rho = rhos[c[0]]
+        theta = thetas[c[1]]
+        x1 = 0
+        y1 = int(rho / sin(theta))
+        y2 = 0
+        x2 = int(rho / cos(theta))
+        if y1 >= height or y1 < 0:
+            x1 = width - 1
+            y1 = int((rho - x1 * cos(theta)) / sin(theta))
+        if x2 >= width or x2 < 0:
+            y2 = height - 1
+            x2 = int((rho - y2 * sin(theta)) / cos(theta))
+        if y1 >= height or y1 < 0:
+            y1 = height - 1
+            x1 = int((rho - y1 * sin(theta)) / cos(theta))
+        if x2 >= width or x2 < 0:
+            x2 = width - 1
+            y2 = int((rho - x2 * cos(theta)) / sin(theta))
+        print x1, y1, x2, y2
+        cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+        h = erase_max(h, c)
+
+        return img
+
+
+
 
 def main():
     import timeit
@@ -98,46 +139,14 @@ def main():
 
     # start = timeit.default_timer()
 
-    img = cv2.imread('/home/hikmet/Python/DocumentScanning/images/paper.jpg')
+    img = cv2.imread('/home/hikmet/Python/DocumentScanning/images/notes.jpg')
+    img = draw_four_lines(img)
 
-    h, thetas, rhos, x2 = hough_transform(img)
-
-    print detect_peaks(h)
-
-    sortedpts = SortPoints(img)
-    x = 0
-    cv2.circle(img, (sortedpts.sorted_points[0][1], sortedpts.sorted_points[0][0]), 10, (0, 0, 255), -1)
-    # for pt in sortedpts.sorted_points:
-    #     cv2.circle(img, (pt[1], pt[0]), 1, (0, int(255 * x / 3458.0), int(255 * x / 3458.0)), 5)
-    #     x += 1
-    cv2.circle(img, (sortedpts.sorted_points[x - 1][1], sortedpts.sorted_points[x - 1][0]), 10, (255, 0, 0), -1)
-
-    # show_image('image', cv2.resize(img.copy(), (560, 710)))
-
-    # c = np.squeeze(np.where(h == h.max()))
-    #
-    # rho = rhos[c[0]]
-    # theta = thetas[c[1]]
-    #
-    # x1 = 0
-    # # if theta ==
-    # y1 = int(rho/sin(theta))
-    # y2 = int(x2*cos(theta) + y1)
-    #
-    # cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 1)
-
-    stop = timeit.default_timer()
+    # stop = timeit.default_timer()
     # print stop - start
 
-    # h = np.log(h + 1)
-    # h *= 255.0 / h.max()
-    # h = cv2.GaussianBlur(h, (5, 5), 0)
-    # h = scipy.misc.imresize(h, (500, 500))
     p.imshow(img)
     p.figure()
-    p.imshow(h)
-    p.show()
-    np.savetxt('hough.txt', h)
 
 
 if __name__ == "__main__":
