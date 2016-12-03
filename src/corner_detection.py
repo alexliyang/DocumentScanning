@@ -2,9 +2,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as p
 from document_scanner import create_edge_image
-# from scipy.ndimage.filters import maximum_filter
-# from scipy.ndimage.morphology import generate_binary_structure, binary_erosion
 from sort_points import SortPoints
+from src.helpers import show_image
 
 def gradient_direction(image):
 
@@ -92,7 +91,7 @@ def hough_transform(image):
 
 def erase_max(h, c):
     for i in range(-5,5)+c[1]:
-        for j in range(-40,40)+c[0]:
+        for j in range(-50, 50)+c[0]:
             h[j][i] = 0
 
     return h
@@ -103,7 +102,7 @@ def draw_four_lines(img):
     height, width, _ = img.shape
     h, thetas, rhos = hough_transform(img)
 
-    for i in range(4):
+    for i in range(0,4):
         c = np.squeeze(np.where(h == h.max()))
         rho = rhos[c[0]]
         theta = thetas[c[1]]
@@ -127,10 +126,7 @@ def draw_four_lines(img):
         cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
         h = erase_max(h, c)
 
-        return img
-
-
-
+    return img
 
 def main():
     import timeit
@@ -139,15 +135,19 @@ def main():
 
     # start = timeit.default_timer()
 
-    img = cv2.imread('/home/hikmet/Python/DocumentScanning/images/notes.jpg')
+    img = cv2.imread('/home/hikmet/Python/DocumentScanning/images/landscape.jpg')
     img = draw_four_lines(img)
+    show_image('im', img)
 
     # stop = timeit.default_timer()
     # print stop - start
 
-    p.imshow(img)
-    p.figure()
 
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    # p.imshow(i1mg)
+    # p.figure()
 
 if __name__ == "__main__":
     main()
