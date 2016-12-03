@@ -2,6 +2,7 @@ from adaptive_thresholding import adaptive_threshold
 import cv2
 import numpy as np
 import transform
+from rdp import rdp
 
 
 # initialize the list of reference points. This list will be populated by the points picked by the user
@@ -49,9 +50,9 @@ def largest_contour(contour_list):
 def find_corners_from_contours(page_contour):
     """Analyze the largest contour of the image and return the four corners of the document in the image"""
 
-    epsilon = 0.15 * cv2.arcLength(page_contour, True)
-    # page_approx = douglas_peucker(page_contour, epsilon)
-    page_approx = cv2.approxPolyDP(page_contour, epsilon, True)
+    epsilon = 0.001 * cv2.arcLength(page_contour, True)
+    page_approx = rdp(page_contour, epsilon)
+    # page_approx = cv2.approxPolyDP(page_contour, epsilon, True)
     return page_approx.sum(axis=1), page_approx
 
 
@@ -101,8 +102,8 @@ def main():
     # image = cv2.imread('../images/note2.jpg')
     # image = cv2.imread('../images/angle.jpg')
     # image = cv2.imread('../images/keycard.jpg')
-    image = cv2.imread('../images/resume_low_res.jpg')
-
+    # image = cv2.imread('../images/notes.jpg')
+    image = cv2.imread('../images/resume_tilted.jpg')
     # image_cp = image.copy()
     #
     # def click_point(event, x, y, flags, param):
@@ -127,7 +128,7 @@ def main():
     # cv2.destroyAllWindows()
 
     scanned_doc = scan_page(image)
-    cv2.imwrite('../images/scanned_notes.jpg', scanned_doc)
+    cv2.imwrite('../images/scanned_tilt.jpg', scanned_doc)
 
 if __name__ == "__main__":
     main()
