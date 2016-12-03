@@ -5,18 +5,6 @@ from document_scanner import create_edge_image
 from sort_points import SortPoints
 from src.helpers import show_image
 
-def gradient_direction(image):
-
-    if len(image.shape) == 3:
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-
-    Gx = cv2.Sobel(image, cv2.CV_16S, 1, 0, ksize=3)
-    Gy = cv2.Sobel(image, cv2.CV_16S, 0, 1, ksize=3)
-
-    theta = np.arctan2(Gy, Gx)
-    return theta
-
-
 def hough_transform(image):
     import numpy as np
     import scipy.misc
@@ -102,7 +90,7 @@ def draw_four_lines(img):
     height, width, _ = img.shape
     h, thetas, rhos = hough_transform(img)
 
-    for i in range(0,4):
+    for i in range(0,5):
         c = np.squeeze(np.where(h == h.max()))
         rho = rhos[c[0]]
         theta = thetas[c[1]]
@@ -135,13 +123,12 @@ def main():
 
     # start = timeit.default_timer()
 
-    img = cv2.imread('/home/hikmet/Python/DocumentScanning/images/landscape.jpg')
+    img = cv2.imread('../images/paper.jpg')
     img = draw_four_lines(img)
     show_image('im', img)
 
     # stop = timeit.default_timer()
     # print stop - start
-
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
