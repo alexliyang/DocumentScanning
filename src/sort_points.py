@@ -58,6 +58,13 @@ def find_perpendicular(rho, theta):
     return -a, b, -c
 
 
+def line(p1, p2):
+    A = (p1[1] - p2[1])
+    B = (p2[0] - p1[0])
+    C = (p1[0]*p2[1] - p2[0]*p1[1])
+    return A, B, -C
+
+
 def intersection(L1, L2):
     D = L1[0] * L2[1] - L1[1] * L2[0]
     Dx = L1[2] * L2[1] - L1[1] * L2[2]
@@ -70,16 +77,14 @@ def intersection(L1, L2):
         return False, False
 
 
-def find_intersections(points):
-    lines = []
-    for pt in points:
-        a, b, c = find_perpendicular(pt[0], pt[1])
-        lines.append([a, b, c])
+def find_intersections(lines, shape):
 
     intercepts = []
-    for i in range(0, len(points)):
-        for j in range(i + 1, len(points)):
-            x, y = intersection(lines[i], lines[j])
-            if type(x) == float and x >= 0 and y >= 0:
+    for i in range(0, len(lines)):
+        for j in range(i + 1, len(lines)):
+            line1 = line(lines[i][:2], lines[i][2:])
+            line2 = line(lines[j][:2], lines[j][2:])
+            x, y = intersection(line1, line2)
+            if type(x) != bool and x >= 0 and y >= 0 and x <= shape[1] - 1 and y <= shape[0] -1:
                 intercepts.append([x, y])
     return intercepts
