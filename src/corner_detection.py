@@ -4,6 +4,7 @@ import matplotlib.pyplot as p
 from document_scanner import create_edge_image
 from scipy.ndimage.filters import maximum_filter
 from scipy.ndimage.morphology import generate_binary_structure, binary_erosion
+from sort_points import SortPoints
 
 def gradient_direction(image):
 
@@ -102,6 +103,16 @@ def main():
     h, thetas, rhos, x2 = hough_transform(img)
 
     print detect_peaks(h)
+
+    sortedpts = SortPoints(img)
+    x = 0
+    cv2.circle(img, (sortedpts.sorted_points[0][1], sortedpts.sorted_points[0][0]), 10, (0, 0, 255), -1)
+    # for pt in sortedpts.sorted_points:
+    #     cv2.circle(img, (pt[1], pt[0]), 1, (0, int(255 * x / 3458.0), int(255 * x / 3458.0)), 5)
+    #     x += 1
+    cv2.circle(img, (sortedpts.sorted_points[x - 1][1], sortedpts.sorted_points[x - 1][0]), 10, (255, 0, 0), -1)
+
+    # show_image('image', cv2.resize(img.copy(), (560, 710)))
 
     # c = np.squeeze(np.where(h == h.max()))
     #
