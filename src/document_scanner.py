@@ -7,37 +7,6 @@ import transform
 # initialize the list of reference points. This list will be populated by the points picked by the user
 # refPt = set([])
 
-def hough_transform(edge):
-
-    import numpy as np
-    import scipy.misc
-
-    height, width = edge.shape
-    max_distance = np.sqrt(height ** 2 + width ** 2)
-    rhos = np.arange(-max_distance, max_distance, 1)
-    thetas = np.deg2rad(np.arange(-90,90))
-
-    cos_t = np.cos(thetas)
-    sin_t = np.sin(thetas)
-    num_thetas = len(thetas)
-
-    accumulator = np.zeros((len(rhos), len(thetas)), dtype=np.uint64)
-    y_coord, x_coord = np.nonzero(edge)
-
-    for i in range(len(y_coord)):
-        x = x_coord[i]
-        y = y_coord[i]
-
-        for t_coord in range(num_thetas):
-            rho = int(round(x * cos_t[t_coord] + y * sin_t[t_coord]) + max_distance)
-            accumulator[rho, t_coord] += 1
-
-    accumulator = np.log(accumulator + 1)
-    accumulator *= 255.0/accumulator.max()
-    accumulator = scipy.misc.imresize(accumulator, (500, 500))
-
-    return accumulator
-
 def create_edge_image(image):
     """Take in an image and return a gray scale and edge image. Return an image with the most prominent edges"""
 

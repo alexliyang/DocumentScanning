@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as p
-from helpers import show_image, wait_for_q_press
 from document_scanner import create_edge_image
-from scipy.signal import convolve2d
+from scipy.ndimage.filters import maximum_filter
+from scipy.ndimage.morphology import generate_binary_structure, binary_erosion
 
 def gradient_direction(image):
 
@@ -40,7 +40,7 @@ def hough_transform(image):
     sin_t = np.sin(thetas)
     num_thetas = len(thetas)
 
-    accumulator = np.zeros((len(rhos), len(thetas)), dtype=np.uint64)
+    accumulator = np.zeros((len(rhos), len(thetas)))
     y_coord, x_coord = np.nonzero(edge)
 
     for i in range(len(y_coord)):
@@ -56,79 +56,78 @@ def hough_transform(image):
     # accumulator *= 255.0 / accumulator.max()
     # accumulator = scipy.misc.imresize(accumulator, (500, 500))
 
-    return accumulator
+    return accumulator, thetas, rhos, width
+
+def detect_peaks(image):
+    """
+    Takes an image and detect the peaks usingthe local maximum filter.
+    Returns a boolean mask of the peaks (i.e. 1 when
+    the pixel's value is the neighborhood maximum, 0 otherwise)
+    """
+
+    # define an 8-connected neighborhood
+    neighborhood = generate_binary_structure(2,2)
+
+    # apply the local maximum filter; all pixel of maximal value
+    # in their neighborhood are set to 1
+    local_max = maximum_filter(image, footprint=neighborhood)==image
+    # local_max is a mask that contains the peaks we are
+    # looking for, but also the background.
+    # In order to isolate the peaks we must remove the background from the mask.
+
+    # we create the mask of the background
+    background = (image == 0)
+
+    # a little technicality: we must erode the background in order to
+    # successfully subtract it form local_max, otherwise a line will
+    # appear along the background border (artifact of the local maximum filter)
+    eroded_background = binary_erosion(background, structure=neighborhood, border_value=1)
+
+    # we obtain the final mask, containing only peaks,
+    # by removing the background from the local_max mask (xor operation)
+    detected_peaks = local_max ^ eroded_background
+
+    return detected_peaks
 
 
 def main():
     import timeit
+    from numpy import cos, sin
+    import scipy.misc
 
-    start = timeit.default_timer()
+    # start = timeit.default_timer()
 
-    img = cv2.imread('/home/hikmet/Python/DocumentScanning/images/notes.jpg')
+    img = cv2.imread('/home/hikmet/Python/DocumentScanning/images/paper.jpg')
 
-    h = hough_transform(img)
+    h, thetas, rhos, x2 = hough_transform(img)
 
-    # _, edge = create_edge_image(img)
-    # cv2.destroyAllWindows()
-    # points = np.transpose(np.where(edge == 255))
+    print detect_peaks(h)
+
+    # c = np.squeeze(np.where(h == h.max()))
     #
-    # hull = np.squeeze(cv2.convexHull(points)).T
+    # rho = rhos[c[0]]
+    # theta = thetas[c[1]]
     #
-    # edge *= 0
+    # x1 = 0
+    # # if theta ==
+    # y1 = int(rho/sin(theta))
+    # y2 = int(x2*cos(theta) + y1)
     #
-    # edge[hull[0],hull[1]] = 255
-
-    # cv2.HoughLinesP(img, )
+    # cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 1)
 
     stop = timeit.default_timer()
-    print stop - start
+    # print stop - start
+
+    # h = np.log(h + 1)
+    # h *= 255.0 / h.max()
+    # h = cv2.GaussianBlur(h, (5, 5), 0)
+    # h = scipy.misc.imresize(h, (500, 500))
+    p.imshow(img)
+    p.figure()
     p.imshow(h)
     p.show()
-    # p.imshow(h, 'gray')
-    # p.show()
-
-    # for i in range(len(hull[0])):
-    #
-    #     cv2.circle(img,(hull[1][i],hull[0][i]),1,(0,0,255),1)
-    #
-    # p.imshow(img)
-    # p.show()
+    np.savetxt('hough.txt', h)
 
 
-
-    # coordinates = np.asarray(zip(x,y))
-    #
-    # coordinates = cv2.convexHull(coordinates)
-    #
-    # edge = np.zeros(img.shape)
-    #
-    # for i in coordinates:
-    #     edge[i[0][1]][i[0][0]] = 255
-    #
-    # print edge[531][304]
-    # h = hough_line(coordinates[0])
-    #
-    # p.imshow(edge,'gray')
-    # p.show()
-
-
-
-    # center = coordinates.sum(0)/len(coordinates)
-    # cv2.circle(img,center,1,(0,0,255),5)
-    # show_image('image',img)
-    # sort = np.argsort(np.arctan2(y - center[0], x - center[1]))
-    #
-    # sorted = coordinates.copy()
-    # x = 0
-    #
-    # for i in range(0,len(coordinates)):
-    #     sorted[i] = coordinates[sort[i]]
-    # for i in sorted:
-    #
-    #     cv2.circle(img,(i[0],i[1]),1,(0,int(255*x/3458.0),int(255*x/3458.0)),5)
-    #     show_image('image',img)
-    #     x += 1
-
-    # wait_for_q_press()
 if __name__ == "__main__":
     main()
