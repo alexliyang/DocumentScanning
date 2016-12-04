@@ -14,10 +14,10 @@ def hough_transform(image):
 
     gray, edge = create_edge_image(image)
     contour = largest_contour(find_contours_from_threshold(gray))
+    contour = np.squeeze(contour)
+    # edge *= 0
 
-    edge *= 0
-
-    cv2.drawContours(edge, contour, -1, (255, 255, 255), 0)
+    # cv2.drawContours(edge, contour, -1, (255, 255, 255), 0)
 
     # points = np.transpose(np.where(edge == 255))
     # hull = np.squeeze(cv2.convexHull(points)).T
@@ -36,7 +36,7 @@ def hough_transform(image):
     num_thetas = len(thetas)
 
     accumulator = np.zeros((len(rhos), len(thetas)))
-    y_coord, x_coord = np.nonzero(edge)
+    x_coord, y_coord = np.split(contour, 2, 1)   # np.nonzero(edge)
 
     for i in range(len(y_coord)):
         x = x_coord[i]
@@ -86,12 +86,13 @@ def hough_transform(image):
 
 def erase_max(h, c):
 
-    a = 30
-    b = 100
+    x_1 = 30
+    y_1 = 50
 
-    for i in range(-a,a)+c[1]:
-        for j in range(-b, b)+c[0]:
-            h[j][i] = 0
+    for i in range(-y_1, y_1) + c[1]:
+        for j in range(-x_1, x_1) + c[0]:
+            if i >= 0 and i < h.shape[0] and j >= 0 and j < h.shape[1]:
+                h[i][j] = 0
 
     return h
 
@@ -106,11 +107,11 @@ def draw_four_lines(img):
     for i in range(0,4):
         c = np.squeeze(np.where(h == h.max()))
 
-        if len(c.shape) > 1:
-            b = np.array((1,2))
-            b[0] = c[0][0]
-            b[1] = c[1][0]
-            c = b
+        # if len(c.shape) > 1:
+        #     b = np.array((1,2))
+        #     b[0] = c[0][0]
+        #     b[1] = c[1][0]
+        #     c = b
         rho = rhos[c[0]]
         theta = thetas[c[1]]
 
@@ -135,13 +136,13 @@ def draw_four_lines(img):
         cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
         h = erase_max(h, c)
 
-        h2 = h                              # I'm using this for debugging
-        # h2 = np.log(h2 + 1)               # |
-        h2 *= 255.0 / h2.max()              # |
-        h2 = imresize(h2, (500, 500))       # |
-
-        show_image('hough', h2)             # |
-        wait_for_q_press()                  # |
+        # h2 = h                              # I'm using this for debugging
+        # # h2 = np.log(h2 + 1)               # |
+        # h2 *= 255.0 / h2.max()              # |
+        # h2 = imresize(h2, (500, 500))       # |
+        #
+        # show_image('hough', cv2.resize(h2, (800, 600)))             # |
+        # wait_for_q_press()                  # |
 
     return img, lines
 
@@ -156,6 +157,8 @@ def main():
     # img = draw_four_lines(img)
     img = cv2.imread('../images/landscape.jpg')
     img, lines = draw_four_lines(img)
+    # cv2.namedWindow('Hough')
+    # cv2.imshow('Hough', cv2.resize(img, (800, 600)))
     corners = find_intersections(lines, img.shape)
     for pt in corners:
         cv2.circle(img, (pt[0], pt[1]), 15, (0, 255, 0), -1)
