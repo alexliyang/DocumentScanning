@@ -2,18 +2,27 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as p
 from document_scanner import create_edge_image
+from document_scanner import find_contours_from_threshold
+from document_scanner import largest_contour
 from sort_points import find_intersections
+from sort_points import SortPoints
 from src.helpers import show_image
 
 def hough_transform(image):
     import numpy as np
     import scipy.misc
 
-    _, edge = create_edge_image(image)
+    gray, edge = create_edge_image(image)
     cv2.destroyAllWindows()
-    points = np.transpose(np.where(edge == 255))
+    # print 'type: ', type(edge), 'shape: ', edge.shape
+    # edge = np.squeeze(np.transpose(largest_contour(find_contours_from_threshold(gray))))
+    # print 'type: ', type(edge), 'shape: ', edge[0].shape
+    # y_coord = edge[0]
+    # x_coord = edge[1]
 
-    hull = np.squeeze(cv2.convexHull(points)).T
+
+    # points = np.transpose(np.where(edge == 255))
+    # hull = np.squeeze(cv2.convexHull(points)).T
 
     # edge *= 0
     # edge[hull[0],hull[1]] = 255
