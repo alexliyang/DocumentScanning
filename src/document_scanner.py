@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import transform
 from rdp import rdp
+from corner_detection import draw_four_lines, find_intersections
 
 
 # initialize the list of reference points. This list will be populated by the points picked by the user
@@ -69,22 +70,26 @@ def scan_page(image):
     # Approximate corners, perspective project and threshold the image
     points, page_approx = find_corners_from_contours(page_contour)
 
+    img, lines = draw_four_lines(image.copy())
+    corners = find_intersections(lines, img.shape)
+
+    # Add the contour onto original image and show it
+    cv2.drawContours(img, page_approx, -1, (0, 0, 255), 20)
+    cv2.namedWindow('Corners', cv2.WINDOW_NORMAL)
+    cv2.imshow('Corners', cv2.resize(img.copy(), (560, 710)))
+
     # Apply a perspective transform to the document
-    warped = transform.four_point_transform(image, points)
+    warped = transform.four_point_transform(image, np.array(corners))
 
     gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
     cv2.namedWindow('warped', cv2.WINDOW_NORMAL)
     cv2.imshow('warped', warped)
 
-    # Add the contour onto original image and show it
-    cv2.drawContours(image, page_approx, -1, (0, 0, 255), 20)
-    cv2.namedWindow('Corners', cv2.WINDOW_NORMAL)
-    cv2.imshow('Corners', cv2.resize(image.copy(), (560, 710)))
-
     # Apply an adaptive threshold on the image to remove contrasting shadows
     scanned_doc = adaptive_threshold(gray, type='adaptive')
     cv2.namedWindow('Scanned Document', cv2.WINDOW_NORMAL)
-    cv2.imshow('Scanned Document', scanned_doc)
+    # cv2.imshow('Scanned Document', scanned_doc)
+    cv2.imshow('Scanned Document', cv2.resize(scanned_doc.copy(), (560, 710)))
 
     # Press "q" to close windows and end program
     while True:
@@ -103,7 +108,7 @@ def main():
     # image = cv2.imread('../images/angle.jpg')
     # image = cv2.imread('../images/keycard.jpg')
     # image = cv2.imread('../images/notes.jpg')
-    image = cv2.imread('../images/resume_tilted.jpg')
+    image = cv2.imread('../images/notes.jpg')
     # image_cp = image.copy()
     #
     # def click_point(event, x, y, flags, param):
@@ -128,7 +133,7 @@ def main():
     # cv2.destroyAllWindows()
 
     scanned_doc = scan_page(image)
-    cv2.imwrite('../images/scanned_tilt.jpg', scanned_doc)
+    cv2.imwrite('../images/scanned_notes.jpg', scanned_doc)
 
 if __name__ == "__main__":
     main()

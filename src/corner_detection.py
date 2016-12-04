@@ -1,12 +1,23 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as p
-from document_scanner import create_edge_image
-from document_scanner import find_contours_from_threshold
-from document_scanner import largest_contour
 from sort_points import find_intersections
-from sort_points import SortPoints
-from src.helpers import show_image
+
+
+def create_edge_image(image):
+    """Take in an image and return a gray scale and edge image. Return an image with the most prominent edges"""
+
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)      # Convert to grayscale
+    gray = cv2.GaussianBlur(gray, (15, 15), 0)          # Apply gaussian to remove noise
+    edged = cv2.Canny(gray, 75, 200)                    # Use Canny edge detection to find the edges
+
+    cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
+    cv2.imshow("Image", image)
+    cv2.namedWindow('Edged', cv2.WINDOW_NORMAL)
+    cv2.imshow("Edged", edged)
+
+    return gray, edged
+
 
 def hough_transform(image):
     import numpy as np
@@ -136,7 +147,7 @@ def main():
 
     # img = cv2.imread('../images/paper.jpg')
     # img = draw_four_lines(img)
-    img = cv2.imread('../images/notes.jpg')
+    img = cv2.imread('../images/landscape.jpg')
     img, lines = draw_four_lines(img)
     corners = find_intersections(lines, img.shape)
     for pt in corners:
