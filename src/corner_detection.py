@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as p
 from document_scanner import create_edge_image
-from sort_points import SortPoints
+from sort_points import find_intersections
 from src.helpers import show_image
 
 def hough_transform(image):
@@ -90,7 +90,8 @@ def draw_four_lines(img):
     height, width, _ = img.shape
     h, thetas, rhos = hough_transform(img)
 
-    for i in range(0,5):
+    lines = []
+    for i in range(0,4):
         c = np.squeeze(np.where(h == h.max()))
         rho = rhos[c[0]]
         theta = thetas[c[1]]
@@ -110,11 +111,12 @@ def draw_four_lines(img):
         if x2 >= width or x2 < 0:
             x2 = width - 1
             y2 = int((rho - x2 * cos(theta)) / sin(theta))
+        lines.append([x1, y1, x2, y2])
         print x1, y1, x2, y2
         cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
         h = erase_max(h, c)
 
-    return img
+    return img, lines
 
 def main():
     import timeit
@@ -123,9 +125,18 @@ def main():
 
     # start = timeit.default_timer()
 
-    img = cv2.imread('../images/paper.jpg')
-    img = draw_four_lines(img)
-    show_image('im', img)
+    # img = cv2.imread('../images/paper.jpg')
+    # img = draw_four_lines(img)
+    img = cv2.imread('../images/notes.jpg')
+    img, lines = draw_four_lines(img)
+    corners = find_intersections(lines, img.shape)
+    for pt in corners:
+        cv2.circle(img, (pt[0], pt[1]), 15, (0, 255, 0), -1)
+        cv2.namedWindow('Corners', cv2.WINDOW_NORMAL)
+
+    cv2.imshow('Corners', cv2.resize(img, (560, 710)))
+
+    # show_image('im', img)
 
     # stop = timeit.default_timer()
     # print stop - start
