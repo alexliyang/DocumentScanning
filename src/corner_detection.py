@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as p
 from sort_points import find_intersections
 
+resize_display = True
 
 def create_edge_image(image):
     """Take in an image and return a gray scale and edge image. Return an image with the most prominent edges"""
@@ -170,9 +171,10 @@ def main():
     for pt in corners:
         cv2.circle(img, (pt[0], pt[1]), 15, (0, 255, 0), -1)
         cv2.namedWindow('Corners', cv2.WINDOW_NORMAL)
-
-    cv2.imshow('Corners', cv2.resize(img, (560, 710)))
-    # cv2.imshow('Corners', img)
+    if resize_display:
+        cv2.imshow('Corners', cv2.resize(img, (560, 710)))
+    else:
+        cv2.imshow('Corners', img)
 
 
     # show_image('im', img)

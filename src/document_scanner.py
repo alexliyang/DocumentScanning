@@ -5,6 +5,7 @@ import transform
 from rdp import rdp
 from contour_corner_detection import draw_four_lines, find_intersections
 
+resize_display = False
 
 def create_edge_image(image):
     """Take in an image and return a gray scale and edge image. Return an image with the most prominent edges"""
@@ -78,7 +79,10 @@ def scan_page(image):
         cv2.circle(img, (pt[0], pt[1]), 15, (0, 255, 0), -1)
         cv2.namedWindow('Corners2', cv2.WINDOW_NORMAL)
 
-    cv2.imshow('Corners2', cv2.resize(img, (560, 710)))
+    if resize_display:
+        cv2.imshow('Corners2', cv2.resize(img, (560, 710)))
+    else:
+        cv2.imshow('Corners2', img)
     cv2.imwrite('../../Desktop/bad_corners.jpg', img)
     # cv2.imshow('Corners', cv2.resize(img.copy(), (560, 710)))
 
@@ -92,8 +96,10 @@ def scan_page(image):
     # Apply an adaptive threshold on the image to remove contrasting shadows
     scanned_doc = adaptive_threshold(gray, type='adaptive')
     cv2.namedWindow('Scanned Document', cv2.WINDOW_NORMAL)
-    # cv2.imshow('Scanned Document', scanned_doc)
-    cv2.imshow('Scanned Document', cv2.resize(scanned_doc.copy(), (560, 710)))
+    if resize_display:
+        cv2.imshow('Scanned Document', cv2.resize(scanned_doc.copy(), (560, 710)))
+    else:
+        cv2.imshow('Scanned Document', scanned_doc)
 
     # Press "q" to close windows and end program
     while True:
@@ -112,23 +118,23 @@ def main():
     # image = cv2.imread('../images/angle.jpg')
     # image = cv2.imread('../images/keycard.jpg')
     # image = cv2.imread('../images/notes.jpg')
+    image = cv2.imread('../images/landscape.jpg')
 
-    # image = cv2.imread('../images/landscape.jpg')
-    # scanned_doc = scan_page(image)
+    scanned_doc = scan_page(image)
 
-    cap = cv2.VideoCapture(1)
-    # cap.set(3, 640)
-    # cap.set(4, 480)
-    # cap.set(15, 0.1)
-    while True:
-        ret, frame = cap.read()
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        cv2.imshow('New', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-    scanned_doc = scan_page(frame)
-
-    cv2.imwrite('../images/scanned_notes.jpg', scanned_doc)
+    # cap = cv2.VideoCapture(1)
+    # # cap.set(3, 640)
+    # # cap.set(4, 480)
+    # # cap.set(15, 0.1)
+    # while True:
+    #     ret, frame = cap.read()
+    #     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    #     cv2.imshow('New', frame)
+    #     if cv2.waitKey(1) & 0xFF == ord('q'):
+    #         break
+    # scanned_doc = scan_page(frame)
+    #
+    # cv2.imwrite('../images/scanned_notes.jpg', scanned_doc)
 
 if __name__ == "__main__":
     main()

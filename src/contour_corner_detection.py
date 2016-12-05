@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from sort_points import find_intersections
 
+resize_display = True
 
 def create_edge_image(image):
     """Take in an image and return a gray scale and edge image. Return an image with the most prominent edges"""
@@ -101,7 +102,7 @@ def draw_four_lines(img, contour):
             x2 = width - 1
             y2 = int((rho - x2 * cos(theta)) / sin(theta))
         lines.append([x1, y1, x2, y2])
-        print x1, y1, x2, y2, 'i\'ve worked', i+1, 'times'
+        print x1, y1, x2, y2 # , 'i\'ve worked', i+1, 'times'
         cv2.line(img, (x1, y1), (x2, y2), (0, 255, 0), 3)
         h = erase_max(h, c)
 
@@ -124,9 +125,10 @@ def main():
     for pt in corners:
         cv2.circle(img, (pt[0], pt[1]), 15, (0, 255, 0), -1)
         cv2.namedWindow('Corners', cv2.WINDOW_NORMAL)
-
-    cv2.imshow('Corners', cv2.resize(img, (900, 600)))
-    # cv2.imshow('Corners', img)
+    if resize_display:
+        cv2.imshow('Corners', cv2.resize(img, (900, 600)))
+    else:
+        cv2.imshow('Corners', img)
 
     # show_image('im', img)
 
