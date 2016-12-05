@@ -126,6 +126,7 @@ def main():
         cv2.namedWindow('Corners', cv2.WINDOW_NORMAL)
 
     cv2.imshow('Corners', cv2.resize(img, (900, 600)))
+    # cv2.imshow('Corners', img)
 
     # show_image('im', img)
 

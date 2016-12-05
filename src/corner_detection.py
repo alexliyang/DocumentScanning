@@ -41,8 +41,8 @@ def hough_transform(image):
     height, width = edge.shape
     max_distance = int(np.sqrt(height ** 2 + width ** 2))
     rhos = np.arange(-max_distance, max_distance)
-    # thetas = np.deg2rad(np.linspace(-90, 90,500))
-    thetas = np.deg2rad(np.arange(-90+25, 90+25))
+    thetas = np.deg2rad(np.linspace(-90+25, 90+25,500))
+    # thetas = np.deg2rad(np.arange(-90+25, 90+25))
 
     cos_t = np.cos(thetas)
     sin_t = np.sin(thetas)
@@ -60,11 +60,11 @@ def hough_transform(image):
             rho = int(x * cos_t[t_coord] + y * sin_t[t_coord]) + max_distance
             accumulator[rho, t_coord] += 1.0
 
-    # accumulator = np.log(accumulator + 1)
-    # accumulator *= 255.0 / accumulator.max()
-    # accumulator = scipy.misc.imresize(accumulator, (500, 500))
+    h2 = np.log(accumulator + 1)
+    h2 *= 255.0 / h2.max()
+    h2 = scipy.misc.imresize(h2, (500, 500))
 
-    return accumulator, thetas, rhos
+    return accumulator, thetas, rhos, h2
 
 # def detect_peaks(image):
 #     """
@@ -97,22 +97,39 @@ def hough_transform(image):
 #
 #     return detected_peaks
 
+
 def erase_max(h, c):
-    for i in range(-5,5)+c[1]:
-        for j in range(-50, 50)+c[0]:
-            h[j][i] = 0
+
+    x_1 = 70
+    y_1 = 150
+
+    for i in range(-y_1 + c[0], y_1 + c[0]):
+        for j in range(-x_1 + c[1], x_1 + c[1]):
+            if i >= 0 and i < h.shape[0] and j >= 0 and j < h.shape[1]:
+                h[i][j] = 0
 
     return h
+
 
 def draw_four_lines(img):
     from numpy import sin, cos
 
     height, width, _ = img.shape
-    h, thetas, rhos = hough_transform(img)
+    h, thetas, rhos, h2 = hough_transform(img)
+
+    p.imshow(h2, 'gray')
+    p.xlabel('Orientation (theta)')
+    p.ylabel('Distance (rho)')
+    p.show()
 
     lines = []
     for i in range(0,4):
         c = np.squeeze(np.where(h == h.max()))
+        if len(c.shape) > 1:
+            b = np.array((1,2))
+            b[0] = c[0][0]
+            b[1] = c[1][0]
+            c = b
         rho = rhos[c[0]]
         theta = thetas[c[1]]
         x1 = 0
@@ -147,7 +164,7 @@ def main():
 
     # img = cv2.imread('../images/paper.jpg')
     # img = draw_four_lines(img)
-    img = cv2.imread('../images/landscape.jpg')
+    img = cv2.imread('../images/notes.jpg')
     img, lines = draw_four_lines(img)
     corners = find_intersections(lines, img.shape)
     for pt in corners:
@@ -155,6 +172,8 @@ def main():
         cv2.namedWindow('Corners', cv2.WINDOW_NORMAL)
 
     cv2.imshow('Corners', cv2.resize(img, (560, 710)))
+    # cv2.imshow('Corners', img)
+
 
     # show_image('im', img)
 
