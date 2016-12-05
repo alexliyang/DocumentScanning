@@ -39,7 +39,6 @@ def find_farthest(contour, epsilon):
         return slice_start
 
 
-
 def rdp(contour, epsilon):
     first = contour[0][0]
     # largest = find_farthest(contour, epsilon)

@@ -23,20 +23,10 @@ def hough_transform(image, contour):
 
     gray, edge = create_edge_image(image)
     contour = np.squeeze(contour)
-    # edge *= 0
-
-    # cv2.drawContours(edge, contour, -1, (255, 255, 255), 0)
-
-    # points = np.transpose(np.where(edge == 255))
-    # hull = np.squeeze(cv2.convexHull(points)).T
-
-    # edge *= 0
-    # edge[hull[0],hull[1]] = 255
 
     height, width = edge.shape
     max_distance = int(np.sqrt(height ** 2 + width ** 2))
     rhos = np.arange(-max_distance, max_distance)
-    # thetas = np.deg2rad(np.linspace(-90, 90,500))
     thetas = np.deg2rad(np.arange(-90+25, 90+25))
 
     cos_t = np.cos(thetas)
@@ -74,6 +64,7 @@ def erase_max(h, c):
 
     return h
 
+
 def draw_four_lines(img, contour):
     from numpy import sin, cos
 
@@ -92,14 +83,11 @@ def draw_four_lines(img, contour):
         rho = rhos[c[0]]
         theta = thetas[c[1]]
 
-        # try:
-
         x1 = 0
         y1 = int(rho / sin(theta))
         y2 = 0
         x2 = int(rho / cos(theta))
-        # except OverflowError:
-        #     print "Overflow"
+
         if y1 >= height or y1 < 0:
             x1 = width - 1
             y1 = int((rho - x1 * cos(theta)) / sin(theta))
@@ -114,17 +102,8 @@ def draw_four_lines(img, contour):
             y2 = int((rho - x2 * cos(theta)) / sin(theta))
         lines.append([x1, y1, x2, y2])
         print x1, y1, x2, y2, 'i\'ve worked', i+1, 'times'
-        cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+        cv2.line(img, (x1, y1), (x2, y2), (0, 255, 0), 3)
         h = erase_max(h, c)
-
-
-        # h2 = h                              # I'm using this for debugging
-        # # h2 = np.log(h2 + 1)               # |
-        # h2 *= 255.0 / h2.max()              # |
-        # h2 = imresize(h2, (500, 500))       # |
-        #
-        # show_image('hough', cv2.resize(h2, (800, 600)))             # |
-        # wait_for_q_press()                  # |
 
     return img, lines
 
