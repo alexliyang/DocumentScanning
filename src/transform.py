@@ -49,16 +49,6 @@ def four_point_transform(image, pts):
     # Compute the perspective transform matrix and then apply it
     perspective_matrix = cv2.getPerspectiveTransform(rect, dst)
     warped = cv2.warpPerspective(image, perspective_matrix, (max_width, max_height))
-    # warped = warpPerspective(image, perspective_matrix, max_width, max_height)
     return warped
 
 
-def warpPerspective(image, perspective_matrix, max_width, max_height):
-    new_img = np.zeros((max_height, max_width, 3), np.uint8)
-    for y in range(0, max_height):
-        for x in range(0, max_width):
-            xx = (perspective_matrix[0,0]*x + perspective_matrix[0, 1]*y + perspective_matrix[0, 2])/(perspective_matrix[2,0]*x + perspective_matrix[2, 1]*y + perspective_matrix[2, 2])
-            yy = (perspective_matrix[1, 0] * x + perspective_matrix[1, 1] * y + perspective_matrix[1, 2]) / (
-            perspective_matrix[2, 0] * x + perspective_matrix[2, 1] * y + perspective_matrix[2, 2])
-            new_img[y, x] = image[yy, xx]
-    return new_img

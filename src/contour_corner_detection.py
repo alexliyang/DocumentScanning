@@ -1,19 +1,27 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as p
-from document_scanner import create_edge_image
-from document_scanner import find_contours_from_threshold
-from document_scanner import largest_contour
 from sort_points import find_intersections
-from sort_points import SortPoints
-from src.helpers import show_image, wait_for_q_press
 
-def hough_transform(image):
+
+def create_edge_image(image):
+    """Take in an image and return a gray scale and edge image. Return an image with the most prominent edges"""
+
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)      # Convert to grayscale
+    gray = cv2.GaussianBlur(gray, (15, 15), 0)          # Apply gaussian to remove noise
+    edged = cv2.Canny(gray, 75, 200)                    # Use Canny edge detection to find the edges
+
+    cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
+    cv2.imshow("Image", image)
+    cv2.namedWindow('Edged', cv2.WINDOW_NORMAL)
+    cv2.imshow("Edged", edged)
+
+    return gray, edged
+
+
+def hough_transform(image, contour):
     import numpy as np
-    import scipy.misc
 
     gray, edge = create_edge_image(image)
-    contour = largest_contour(find_contours_from_threshold(gray))
     contour = np.squeeze(contour)
     # edge *= 0
 
@@ -53,72 +61,45 @@ def hough_transform(image):
 
     return accumulator, thetas, rhos
 
-# def detect_peaks(image):
-#     """
-#     Takes an image and detect the peaks usingthe local maximum filter.
-#     Returns a boolean mask of the peaks (i.e. 1 when
-#     the pixel's value is the neighborhood maximum, 0 otherwise)
-#     """
-#
-#     # define an 8-connected neighborhood
-#     neighborhood = generate_binary_structure(2,2)
-#
-#     # apply the local maximum filter; all pixel of maximal value
-#     # in their neighborhood are set to 1
-#     local_max = maximum_filter(image, footprint=neighborhood)==image
-#     # local_max is a mask that contains the peaks we are
-#     # looking for, but also the background.
-#     # In order to isolate the peaks we must remove the background from the mask.
-#
-#     # we create the mask of the background
-#     background = (image == 0)
-#
-#     # a little technicality: we must erode the background in order to
-#     # successfully subtract it form local_max, otherwise a line will
-#     # appear along the background border (artifact of the local maximum filter)
-#     eroded_background = binary_erosion(background, structure=neighborhood, border_value=1)
-#
-#     # we obtain the final mask, containing only peaks,
-#     # by removing the background from the local_max mask (xor operation)
-#     detected_peaks = local_max ^ eroded_background
-#
-#     return detected_peaks
 
 def erase_max(h, c):
 
-    x_1 = 30
-    y_1 = 50
+    x_1 = 70
+    y_1 = 150
 
-    for i in range(-y_1, y_1) + c[1]:
-        for j in range(-x_1, x_1) + c[0]:
+    for i in range(-y_1 + c[0], y_1 + c[0]):
+        for j in range(-x_1 + c[1], x_1 + c[1]):
             if i >= 0 and i < h.shape[0] and j >= 0 and j < h.shape[1]:
                 h[i][j] = 0
 
     return h
 
-def draw_four_lines(img):
-    from scipy.misc import imresize
+def draw_four_lines(img, contour):
     from numpy import sin, cos
 
     height, width, _ = img.shape
-    h, thetas, rhos = hough_transform(img)
+    h, thetas, rhos = hough_transform(img, contour)
 
     lines = []
     for i in range(0,4):
         c = np.squeeze(np.where(h == h.max()))
 
-        # if len(c.shape) > 1:
-        #     b = np.array((1,2))
-        #     b[0] = c[0][0]
-        #     b[1] = c[1][0]
-        #     c = b
+        if len(c.shape) > 1:
+            b = np.array((1,2))
+            b[0] = c[0][0]
+            b[1] = c[1][0]
+            c = b
         rho = rhos[c[0]]
         theta = thetas[c[1]]
+
+        # try:
 
         x1 = 0
         y1 = int(rho / sin(theta))
         y2 = 0
         x2 = int(rho / cos(theta))
+        # except OverflowError:
+        #     print "Overflow"
         if y1 >= height or y1 < 0:
             x1 = width - 1
             y1 = int((rho - x1 * cos(theta)) / sin(theta))
@@ -135,6 +116,7 @@ def draw_four_lines(img):
         print x1, y1, x2, y2, 'i\'ve worked', i+1, 'times'
         cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
         h = erase_max(h, c)
+
 
         # h2 = h                              # I'm using this for debugging
         # # h2 = np.log(h2 + 1)               # |
@@ -155,7 +137,7 @@ def main():
 
     # img = cv2.imread('../images/paper.jpg')
     # img = draw_four_lines(img)
-    img = cv2.imread('../images/landscape.jpg')
+    img = cv2.imread('../images/resume.jpg')
     img, lines = draw_four_lines(img)
     # cv2.namedWindow('Hough')
     # cv2.imshow('Hough', cv2.resize(img, (800, 600)))
@@ -164,7 +146,7 @@ def main():
         cv2.circle(img, (pt[0], pt[1]), 15, (0, 255, 0), -1)
         cv2.namedWindow('Corners', cv2.WINDOW_NORMAL)
 
-    cv2.imshow('Corners', img)
+    cv2.imshow('Corners', cv2.resize(img, (900, 600)))
 
     # show_image('im', img)
 

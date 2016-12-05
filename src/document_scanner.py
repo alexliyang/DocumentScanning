@@ -3,11 +3,8 @@ import cv2
 import numpy as np
 import transform
 from rdp import rdp
-from corner_detection import draw_four_lines, find_intersections
+from contour_corner_detection import draw_four_lines, find_intersections
 
-
-# initialize the list of reference points. This list will be populated by the points picked by the user
-# refPt = set([])
 
 def create_edge_image(image):
     """Take in an image and return a gray scale and edge image. Return an image with the most prominent edges"""
@@ -51,7 +48,7 @@ def largest_contour(contour_list):
 def find_corners_from_contours(page_contour):
     """Analyze the largest contour of the image and return the four corners of the document in the image"""
 
-    epsilon = 0.001 * cv2.arcLength(page_contour, True)
+    epsilon = 0.00001 * cv2.arcLength(page_contour, True)
     page_approx = rdp(page_contour, epsilon)
     # page_approx = cv2.approxPolyDP(page_contour, epsilon, True)
     return page_approx.sum(axis=1), page_approx
@@ -70,7 +67,7 @@ def scan_page(image):
     # Approximate corners, perspective project and threshold the image
     points, page_approx = find_corners_from_contours(page_contour)
 
-    img, lines = draw_four_lines(image.copy())
+    img, lines = draw_four_lines(image.copy(), page_contour)
     corners = find_intersections(lines, img.shape)
 
     # Add the contour onto original image and show it
@@ -108,32 +105,23 @@ def main():
     # image = cv2.imread('../images/angle.jpg')
     # image = cv2.imread('../images/keycard.jpg')
     # image = cv2.imread('../images/notes.jpg')
-    image = cv2.imread('../images/notes.jpg')
-    # image_cp = image.copy()
-    #
-    # def click_point(event, x, y, flags, param):
-    #     # grab references to the global variables
-    #     global refPt
-    #
-    #     # if the left mouse button was clicked, record the starting (x, y) coordinates
-    #     if event == cv2.EVENT_LBUTTONDOWN:
-    #         refPt.add((x, y))
-    #         print("Added point {}, {} to the data set.".format(x, y))
-    #         # draw a circle around the region of interest
-    #         cv2.circle(image_cp, (x, y), 3, (0, 0, 255), -1)
-    #         cv2.namedWindow('image', cv2.WINDOW_NORMAL)
-    #         cv2.imshow("image", image_cp)
-    #
-    # # cv2.namedWindow("image")
-    # cv2.namedWindow('image', cv2.WINDOW_NORMAL)
-    # cv2.setMouseCallback("image", click_point)
-    #
-    # cv2.imshow("image", image_cp)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
 
+    image = cv2.imread('../images/notes.jpg')
     scanned_doc = scan_page(image)
-    cv2.imwrite('../images/scanned_notes.jpg', scanned_doc)
+
+    # cap = cv2.VideoCapture(0)
+    # cap.set(3, 640)
+    # cap.set(4, 480)
+    # cap.set(15, 0.1)
+    # while True:
+    #     ret, frame = cap.read()
+    #     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    #     cv2.imshow('New', frame)
+    #     if cv2.waitKey(1) & 0xFF == ord('q'):
+    #         break
+    # scanned = scan_page(frame)
+
+    # cv2.imwrite('../images/scanned_notes.jpg', scanned_doc)
 
 if __name__ == "__main__":
     main()

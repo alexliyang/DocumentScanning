@@ -1,16 +1,12 @@
 import math
 
+
 class SortPoints:
 
     def __init__(self, points):
         self.points = points        # self.find_points(image)
         self.centre_point = None
         self.sorted_points = self.sort_clockwise(self.points)
-
-    # def find_points(self, image):
-    #     _, edge = create_edge_image(image)
-    #     x, y = np.where(edge == 255)
-    #     return zip(x, y)
 
     def sort_clockwise(self, points):
         self.centre_point = self.get_center_of_points(points)

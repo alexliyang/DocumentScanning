@@ -2,26 +2,6 @@ import math
 import numpy as np
 
 
-# def perpendicular_distance(point1, point2, point3):
-#     run = point2[0] - point1[0]
-#     rise = point2[1] - point1[1]
-#
-#     dist = run**2 + rise**2
-#     u = ((point3[1] - point1[0]) * run + (point3[1] - point1[1]) * rise)/ float(dist)
-#
-#     if u > 1:
-#         u = 1
-#     elif u < 0:
-#         u = 0
-#
-#     x = point1[0] + u * run
-#     y = point1[1] + u * rise
-#     dx = x - point3[0]
-#     dy = y - point3[1]
-#
-#     return math.sqrt(dx**2 + dy**2)
-
-
 def perpendicular_distance(p, p1, p2):
     if p1[0] == p2[0]:
         result = abs(p[0] - p1[0])
@@ -30,26 +10,6 @@ def perpendicular_distance(p, p1, p2):
         intercept = p1[1] - (slope * p1[0])
         result = abs(slope * p[0] - p[1] + intercept)/ math.sqrt(math.pow(slope, 2) + 1)
     return result
-
-
-# def douglas_peucker(contour, epsilon):
-#     dmax = 0
-#     index = 0
-#     end = len(contour)
-#     for i in range(2, end -1):
-#         d = perpendicular_distance(contour[0][0], contour[end -1][0], contour[i][0])
-#         if d > dmax:
-#             index = i
-#             dmax = d
-#     if dmax > epsilon:
-#         recursive_res1 = douglas_peucker(contour[0:index+1], epsilon)
-#         recursive_res2 = douglas_peucker(contour[index+1: end], epsilon)
-#
-#         result_list = np.concatenate((recursive_res1[:len(recursive_res1)], recursive_res2), axis=0)
-#     else:
-#         result_list = np.array([contour[0], contour[end-1]])
-#
-#     return result_list
 
 
 def find_farthest(contour, epsilon):
