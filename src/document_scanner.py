@@ -48,6 +48,7 @@ def largest_contour(contour_list):
 def find_corners_from_contours(page_contour):
     """Analyze the largest contour of the image and return the four corners of the document in the image"""
 
+    # epsilon = 0.1 * cv2.arcLength(page_contour, True)
     epsilon = 0.00001 * cv2.arcLength(page_contour, True)
     page_approx = rdp(page_contour, epsilon)
     # page_approx = cv2.approxPolyDP(page_contour, epsilon, True)
@@ -71,9 +72,15 @@ def scan_page(image):
     corners = find_intersections(lines, img.shape)
 
     # Add the contour onto original image and show it
-    cv2.drawContours(img, page_approx, -1, (0, 0, 255), 20)
-    cv2.namedWindow('Corners', cv2.WINDOW_NORMAL)
-    cv2.imshow('Corners', cv2.resize(img.copy(), (560, 710)))
+    # cv2.drawContours(img, page_approx, -1, (0, 255, 0), 20)
+    # cv2.namedWindow('Corners', cv2.WINDOW_NORMAL)
+    for pt in corners:
+        cv2.circle(img, (pt[0], pt[1]), 15, (0, 255, 0), -1)
+        cv2.namedWindow('Corners2', cv2.WINDOW_NORMAL)
+
+    cv2.imshow('Corners2', cv2.resize(img, (560, 710)))
+    cv2.imwrite('../../Desktop/bad_corners.jpg', img)
+    # cv2.imshow('Corners', cv2.resize(img.copy(), (560, 710)))
 
     # Apply a perspective transform to the document
     warped = transform.four_point_transform(image, np.array(corners))
@@ -106,22 +113,22 @@ def main():
     # image = cv2.imread('../images/keycard.jpg')
     # image = cv2.imread('../images/notes.jpg')
 
-    image = cv2.imread('../images/notes.jpg')
-    scanned_doc = scan_page(image)
+    # image = cv2.imread('../images/landscape.jpg')
+    # scanned_doc = scan_page(image)
 
-    # cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     # cap.set(3, 640)
     # cap.set(4, 480)
     # cap.set(15, 0.1)
-    # while True:
-    #     ret, frame = cap.read()
-    #     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    #     cv2.imshow('New', frame)
-    #     if cv2.waitKey(1) & 0xFF == ord('q'):
-    #         break
-    # scanned = scan_page(frame)
+    while True:
+        ret, frame = cap.read()
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        cv2.imshow('New', frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    scanned_doc = scan_page(frame)
 
-    # cv2.imwrite('../images/scanned_notes.jpg', scanned_doc)
+    cv2.imwrite('../images/scanned_notes.jpg', scanned_doc)
 
 if __name__ == "__main__":
     main()
